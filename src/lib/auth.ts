@@ -3,19 +3,25 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { openAPI } from "better-auth/plugins"
 import { db } from "./drizzle"
 
+const frontURL = process.env.FRONT_URL || "http://localhost:3000"
+const backURL = process.env.BETTER_AUTH_URL || "http://localhost:3001"
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
+  baseURL: backURL,
   basePath: "/auth/api",
-  appBaseURL: process.env.FRONT_URL || "http://localhost:3000",
+  appBaseURL: frontURL,
   secret: process.env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
   },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubdomainCookies: {
+      enabled: false,
+    },
   },
   user: {
     additionalFields: {
@@ -34,8 +40,9 @@ export const auth = betterAuth({
   },
   plugins: [openAPI()],
   trustedOrigins: [
-    process.env.FRONT_URL || "http://localhost:3000",
+    frontURL,
     "http://localhost:3000",
+    "http://localhost:3001",
   ],
   session: {
     expiresIn: 60 * 60 * 24 * 7,
