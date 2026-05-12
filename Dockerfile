@@ -4,27 +4,22 @@ WORKDIR /app
 
 COPY package.json package.json
 COPY bun.lock bun.lock
+COPY tsconfig.json tsconfig.json
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
 COPY ./src ./src
 COPY drizzle.config.ts drizzle.config.ts
 
 ENV NODE_ENV=production
 
-RUN bun build \
-    --compile \
-    --minify-whitespace \
-    --minify-syntax \
-    --target bun-linux-x64 \
-    --outfile server \
-    src/index.ts
+RUN bun run build:linux
 
 FROM gcr.io/distroless/base
 
 WORKDIR /app
 
-COPY --from=build /app/server server
+COPY --from=build /app/dist/server server
 
 ENV NODE_ENV=production
 
