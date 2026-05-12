@@ -20,7 +20,7 @@ export const auth = betterAuth({
   },
   advanced: {
     useSecureCookies: isProd,
-    crossSubdomainCookies: isProd
+    crossSubDomainCookies: isProd
       ? { enabled: true, domain: ".isekais.ai" }
       : { enabled: false },
   },
