@@ -5,6 +5,7 @@ import { db } from "./drizzle"
 
 const frontURL = process.env.FRONT_URL || "http://localhost:3000"
 const backURL = process.env.BETTER_AUTH_URL || "http://localhost:3001"
+const isProd = process.env.NODE_ENV === "production"
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -18,10 +19,10 @@ export const auth = betterAuth({
     enabled: true,
   },
   advanced: {
-    useSecureCookies: process.env.NODE_ENV === "production",
-    crossSubdomainCookies: {
-      enabled: false,
-    },
+    useSecureCookies: isProd,
+    crossSubdomainCookies: isProd
+      ? { enabled: true, domain: ".isekais.ai" }
+      : { enabled: false },
   },
   user: {
     additionalFields: {
@@ -41,6 +42,7 @@ export const auth = betterAuth({
   plugins: [openAPI()],
   trustedOrigins: [
     frontURL,
+    backURL,
     "http://localhost:3000",
     "http://localhost:3001",
   ],
