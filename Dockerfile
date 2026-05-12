@@ -2,18 +2,22 @@ FROM oven/bun AS build
 
 WORKDIR /app
 
-COPY package.json package.json
-COPY bun.lock bun.lock
-COPY tsconfig.json tsconfig.json
+COPY package.json bun.lock tsconfig.json ./
 
 RUN bun install --frozen-lockfile
 
 COPY ./src ./src
-COPY drizzle.config.ts drizzle.config.ts
+COPY drizzle.config.ts ./
 
 ENV NODE_ENV=production
 
-RUN bun run build:linux
+RUN bun build \
+    --compile \
+    --minify-whitespace \
+    --minify-syntax \
+    --target bun-linux-x64 \
+    --outfile dist/server \
+    src/index.ts
 
 FROM gcr.io/distroless/base
 
